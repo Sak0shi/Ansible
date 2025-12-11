@@ -1,0 +1,36 @@
+- name: Работа с файлами
+  hosts: managed_hosts
+  
+  tasks:
+    - name: Создание нескольких директорий
+      file:
+        path: /tmp/{{ item }}
+        state: directory
+        mode: '0755'
+      loop:
+        - test_dir1
+        - test_dir2
+        - test_dir3
+
+    - name: Создание файлов в директориях
+      copy:
+        content: "Это файл {{ item }}\nСоздан Ansible playbook\n"
+        dest: /tmp/{{ item }}/content.txt
+      loop:
+        - test_dir1
+        - test_dir2
+        - test_dir3
+
+    - name: Вывод содержимого файлов
+      command: cat /tmp/{{ item }}/content.txt
+      loop:
+        - test_dir1
+        - test_dir2
+        - test_dir3
+      register: file_content
+
+    - name: Отображение содержимого
+      debug:
+        msg: "Файл {{ item.item }}: {{ item.stdout }}"
+      loop: "{{ file_content.results }}"
+
